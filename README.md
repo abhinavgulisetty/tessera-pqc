@@ -24,12 +24,6 @@
    tessera --help
    ```
 
-## The "Self-Taught" Curriculum
-To implement the TODOs in this codebase, you will need to research:
-1.  **Number Theoretic Transform (NTT)**: Fast polynomial multiplication over finite fields. *Key to Lattice crypto speed.*
-2.  **Intermittent Computing**: Concepts like forward progress, idempotency, and state checkpointing.
-3.  **Side-Channel Power Analysis**: How writing to memory (NVM) leaks Hamming Weight/Distance information that adversaries can measure.
-
 ## Development Plan
 1.  **Phase 1: Basic Crypto Core**: Implement `core/math.py` and `core/primitives.py`. Get a basic KeyGen/Encap working without power interruptions.
 2.  **Phase 2: Chaos Monkey**: Implement `hardware/power.py`. Create a simulation where power dies randomly.
