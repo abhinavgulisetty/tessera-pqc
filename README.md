@@ -1,7 +1,7 @@
 # Tessera-PQC (Tessera)
 
 ## Abstract
-**Tessera** is a research simulation framework designed to explore the intersection of **Post-Quantum Cryptography (PQC)** and **Intermittent Computing**. It simulates a battery-free IoT device attempting to perform heavy Lattice-based cryptographic operations (like Kyber/ML-KEM) while powered by unstable energy harvesting sources. The project focuses on "Atomic" cryptography—breaking large mathematical operations (NTT, matrix multiplication) into small "tesserae" (tiles) that can be checkpointed to Non-Volatile Memory (NVM) before power failure occurs.
+**Tessera** is a research simulation framework designed to explore the intersection of **Post-Quantum Cryptography (PQC)** and **Intermittent Computing**. It simulates a battery-free IoT device attempting to perform heavy Lattice-based cryptographic operations (like Kyber/ML-KEM) while powered by unstable energy harvesting sources. The project focuses on "Atomic" cryptography breaking large mathematical operations (NTT, matrix multiplication) into small "tesserae" (tiles) that can be checkpointed to Non-Volatile Memory (NVM) before power failure occurs.
 
 ## Installation
 
