@@ -1,31 +1,45 @@
 # Tessera-PQC (Tessera)
 
 ## Abstract
-**Tessera** is a research simulation framework designed to explore the intersection of **Post-Quantum Cryptography (PQC)** and **Intermittent Computing**. It simulates a battery-free IoT device attempting to perform heavy Lattice-based cryptographic operations (like Kyber/ML-KEM) while powered by unstable energy harvesting sources. The project focuses on "Atomic" cryptography breaking large mathematical operations (NTT, matrix multiplication) into small "tesserae" (tiles) that can be checkpointed to Non-Volatile Memory (NVM) before power failure occurs.
+**Tessera** is a research simulation framework for exploring **Post-Quantum Cryptography (PQC)** on **Intermittent Computing** devices (battery-free IoT). It models "Atomic" cryptography—breaking large Lattice-based math operations (like NTT) into small tiles ("tesserae") that can be checkpointed to Non-Volatile Memory (NVM) to survive frequent power failures.
 
 ## Installation
 
 ### Prerequisites
-- Python 3.10+
+- Python 3.10 (Strictly required for dependency compatibility)
 
-### Setup
-1. Create a virtual environment:
+### Quick Setup (Windows)
+Run the automated setup script:
+```cmd
+setup_env.bat
+```
+
+### Manual Setup
+1. Create a virtual environment using Python 3.10:
    ```bash
-   python -m venv venv
-   source venv/bin/activate  # Linux/Mac
-   venv\Scripts\activate     # Windows
+   py -3.10 -m venv venv
+   # Or depending on your system: python3.10 -m venv venv
    ```
-2. Install the package in editable mode:
+2. Activate the environment:
+   - **Windows:** `venv\Scripts\activate`
+   - **Linux/Mac:** `source venv/bin/activate`
+3. Install the package in editable mode:
    ```bash
    pip install -e .
    ```
-3. Verify installation:
+4. Verify installation:
    ```bash
-   tessera --help
+   tessera run --help
    ```
 
-## Development Plan
-1.  **Phase 1: Basic Crypto Core**: Implement `core/math.py` and `core/primitives.py`. Get a basic KeyGen/Encap working without power interruptions.
-2.  **Phase 2: Chaos Monkey**: Implement `hardware/power.py`. Create a simulation where power dies randomly.
-3.  **Phase 3: Atomic Scheduler**: Implement `scheduler.py`. Break the crypto math into chunks that save state to `hardware/memory.py` to survive Phase 2.
-4.  **Phase 4: Leakage**: Instrument `memory.py` to log "power consumption" during writes, simulating side-channel leakage.
+## Curriculum & Roadmap
+To complete the `TODO`s in the code, research these topics:
+1. **Number Theoretic Transform (NTT):** Efficient polynomial multiplication in rings.
+2. **Intermittent Computing:** Checkpointing, forward progress, and idempotency.
+3. **Side-Channel Analysis:** Leakage modeling (Hamming Weight) during NVM writes.
+
+**Development Phases:**
+1. **Crypto Core:** Implement `math.py` and `primitives.py`.
+2. **Power Simulation:** Refine `power.py` events.
+3. **Atomic Scheduler:** Implement logic in `scheduler.py` to handle interruptions.
+4. **Leakage Analysis:** Instrument `memory.py` to trace power side-channels.

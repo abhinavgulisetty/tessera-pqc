@@ -12,13 +12,49 @@ license = {text = "MIT"}
 authors = [
   {name = "Research Architect", email = "architect@tessera.local"}
 ]
+keywords = [
+    "post-quantum", "cryptography", "kyber", "ntt", "lattice",
+    "intermittent-computing", "iot", "simulation", "pqc"
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security :: Cryptography",
+    "Topic :: Scientific/Engineering",
+    "Operating System :: OS Independent",
+]
 dependencies = [
-    "numpy",          # Lattice math operations
-    "simpy",          # Discrete event simulation for power
-    "scipy",          # Polynomial helpers/distributions
-    "matplotlib",     # Plotting traces
-    "pycryptodome",   # Hashing (SHA3/SHAKE)
+    "numpy>=1.24",
+    "simpy>=4.0",
+    "matplotlib>=3.7",
+    "rich>=13.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/your-org/tessera-pqc"
+Repository = "https://github.com/your-org/tessera-pqc"
+Issues = "https://github.com/your-org/tessera-pqc/issues"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+]
+notebook = [
+    "jupyter>=1.0",
 ]
 
 [project.scripts]
 tessera = "tessera.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts   = "-v --tb=short"
