@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "Simulation of Atomic Post-Quantum Cryptography on Intermittent Power"
 readme = "README.md"
 requires-python = ">=3.10"
-license = {text = "MIT"}
+license = {file = "LICENSE"}
 authors = [
   {name = "Research Architect", email = "architect@tessera.local"}
 ]
