@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 license = {file = "LICENSE"}
 authors = [
-  {name = "Research Architect", email = "architect@tessera.local"}
+  {name = "Abhinav Gulisetty", email = "abhinavgulisetty@gmail.com"}
 ]
 keywords = [
     "post-quantum", "cryptography", "kyber", "ntt", "lattice",
