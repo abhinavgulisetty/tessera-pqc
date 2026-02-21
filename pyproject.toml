@@ -36,9 +36,9 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/your-org/tessera-pqc"
-Repository = "https://github.com/your-org/tessera-pqc"
-Issues = "https://github.com/your-org/tessera-pqc/issues"
+Homepage = "https://github.com/abhinavgulisetty/tessera-pqc"
+Repository = "https://github.com/abhinavgulisetty/tessera-pqc"
+Issues = "https://github.com/abhinavgulisetty/tessera-pqc/issues"
 
 [project.optional-dependencies]
 dev = [

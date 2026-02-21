@@ -1,6 +1,6 @@
 # Tessera-PQC
 
-[![CI](https://github.com/your-org/tessera-pqc/actions/workflows/ci.yml/badge.svg)](https://github.com/your-org/tessera-pqc/actions/workflows/ci.yml)
+[![CI](https://github.com/abhinavgulisetty/tessera-pqc/actions/workflows/ci.yml/badge.svg)](https://github.com/abhinavgulisetty/tessera-pqc/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/tessera-pqc)](https://pypi.org/project/tessera-pqc/)
 [![Python](https://img.shields.io/pypi/pyversions/tessera-pqc)](https://pypi.org/project/tessera-pqc/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -33,7 +33,7 @@ Requires Python ≥ 3.10.
 ### Development install
 
 ```bash
-git clone https://github.com/your-org/tessera-pqc.git
+git clone https://github.com/abhinavgulisetty/tessera-pqc.git
 cd tessera-pqc
 pip install -e ".[dev]"
 pytest
