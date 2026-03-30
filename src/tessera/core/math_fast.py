@@ -9,6 +9,7 @@ KYBER_OMEGA = 3061
 DILITHIUM_Q = 8380417
 DILITHIUM_N = 256
 DILITHIUM_OMEGA = 1753
+DILITHIUM_OMEGA_256 = pow(1753, 2, 8380417)
 
 
 @njit(cache=True)
@@ -143,11 +144,11 @@ def intt_kyber(poly_ntt: np.ndarray) -> np.ndarray:
 
 
 def ntt_dilithium(poly: np.ndarray) -> np.ndarray:
-    return ntt_fast(poly.astype(np.int64), DILITHIUM_N, DILITHIUM_Q, DILITHIUM_OMEGA)
+    return ntt_fast(poly.astype(np.int64), DILITHIUM_N, DILITHIUM_Q, DILITHIUM_OMEGA_256)
 
 
 def intt_dilithium(poly_ntt: np.ndarray) -> np.ndarray:
-    return intt_fast(poly_ntt.astype(np.int64), DILITHIUM_N, DILITHIUM_Q, DILITHIUM_OMEGA)
+    return intt_fast(poly_ntt.astype(np.int64), DILITHIUM_N, DILITHIUM_Q, DILITHIUM_OMEGA_256)
 
 
 def warmup():
