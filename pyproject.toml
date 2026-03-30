@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "tessera-pqc"
-version = "0.1.1"
-description = "Simulation of Atomic Post-Quantum Cryptography on Intermittent Power"
+version = "0.2.0"
+description = "Post-Quantum Cryptography Simulation Framework with Side-Channel Analysis"
 readme = "README.md"
 requires-python = ">=3.10"
 license = {file = "LICENSE"}
@@ -13,11 +13,12 @@ authors = [
   {name = "Abhinav Gulisetty", email = "abhinavgulisetty@gmail.com"}
 ]
 keywords = [
-    "post-quantum", "cryptography", "kyber", "ntt", "lattice",
-    "intermittent-computing", "iot", "simulation", "pqc"
+    "post-quantum", "cryptography", "kyber", "dilithium", "ntt", "lattice",
+    "intermittent-computing", "iot", "simulation", "pqc", "side-channel",
+    "dpa", "cpa", "power-analysis"
 ]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
@@ -33,6 +34,11 @@ dependencies = [
     "simpy>=4.0",
     "matplotlib>=3.7",
     "rich>=13.0",
+    "numba>=0.58",
+    "pandas>=2.0",
+    "scipy>=1.10",
+    "pyyaml>=6.0",
+    "plotly>=5.15",
 ]
 
 [project.urls]
@@ -44,6 +50,8 @@ Issues = "https://github.com/abhinavgulisetty/tessera-pqc/issues"
 dev = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
+    "hypothesis>=6.0",
+    "mypy>=1.0",
 ]
 notebook = [
     "jupyter>=1.0",
@@ -58,3 +66,9 @@ where = ["src"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts   = "-v --tb=short"
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
