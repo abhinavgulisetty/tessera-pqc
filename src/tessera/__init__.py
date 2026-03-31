@@ -1,6 +1,48 @@
-"""
-Tessera Root Package.
-Exposes the main version and core modules.
-"""
+__version__ = "0.2.0"
 
-__version__ = "0.1.0"
+from tessera.api import (
+    kyber_keygen,
+    kyber_encaps,
+    kyber_decaps,
+    dilithium_keygen,
+    dilithium_sign,
+    dilithium_verify,
+    generate_traces,
+    run_cpa,
+    run_dpa,
+    run_tvla,
+    compute_snr,
+    compute_guessing_entropy,
+    apply_masking,
+    apply_shuffling,
+    export_traces_csv,
+    export_results_json,
+    export_traces_npz,
+    load_traces_npz,
+    benchmark_kyber,
+    benchmark_dilithium,
+)
+
+__all__ = [
+    "__version__",
+    "kyber_keygen",
+    "kyber_encaps",
+    "kyber_decaps",
+    "dilithium_keygen",
+    "dilithium_sign",
+    "dilithium_verify",
+    "generate_traces",
+    "run_cpa",
+    "run_dpa",
+    "run_tvla",
+    "compute_snr",
+    "compute_guessing_entropy",
+    "apply_masking",
+    "apply_shuffling",
+    "export_traces_csv",
+    "export_results_json",
+    "export_traces_npz",
+    "load_traces_npz",
+    "benchmark_kyber",
+    "benchmark_dilithium",
+]
