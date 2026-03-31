@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tessera-PQC | Post-Quantum Cryptography Framework</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <span class="logo">&#9670;</span> Tessera-PQC
+        </div>
+        <div class="nav-links">
+            <a href="#overview">Overview</a>
+            <a href="#architecture">Architecture</a>
+            <a href="#kyber">Kyber</a>
+            <a href="#dilithium">Dilithium</a>
+            <a href="#ntt">NTT</a>
+            <a href="#attacks">Attacks</a>
+            <a href="#countermeasures">Countermeasures</a>
+            <a href="https://github.com/abhinavgulisetty/tessera-pqc" target="_blank">GitHub</a>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="hero-content">
+            <h1>Tessera-PQC</h1>
+            <p class="tagline">Research-grade Post-Quantum Cryptography with Side-Channel Analysis</p>
+            <div class="hero-stats">
+                <div class="stat">
+                    <span class="stat-value">401</span>
+                    <span class="stat-label">Tests</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value">6</span>
+                    <span class="stat-label">PQC Variants</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value">5</span>
+                    <span class="stat-label">Attack Types</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value">3</span>
+                    <span class="stat-label">Countermeasures</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section id="overview" class="section">
+            <h2>Overview</h2>
+            <div class="overview-grid">
+                <div class="overview-card">
+                    <div class="card-icon">&#128274;</div>
+                    <h3>Kyber KEM</h3>
+                    <p>NIST PQC standard for key encapsulation. Supports 512, 768, and 1024 security levels.</p>
+                </div>
+                <div class="overview-card">
+                    <div class="card-icon">&#9998;</div>
+                    <h3>Dilithium Signatures</h3>
+                    <p>NIST PQC standard for digital signatures. Supports levels 2, 3, and 5.</p>
+                </div>
+                <div class="overview-card">
+                    <div class="card-icon">&#9889;</div>
+                    <h3>Numba-Accelerated NTT</h3>
+                    <p>~18μs for Kyber NTT, ~27μs for Dilithium. JIT-compiled for performance.</p>
+                </div>
+                <div class="overview-card">
+                    <div class="card-icon">&#128269;</div>
+                    <h3>Side-Channel Attacks</h3>
+                    <p>CPA, DPA, TVLA, Template attacks, and lattice-specific attacks.</p>
+                </div>
+                <div class="overview-card">
+                    <div class="card-icon">&#128737;</div>
+                    <h3>Countermeasures</h3>
+                    <p>Boolean/Arithmetic masking, shuffling, and hiding techniques.</p>
+                </div>
+                <div class="overview-card">
+                    <div class="card-icon">&#128202;</div>
+                    <h3>Analysis & Export</h3>
+                    <p>CSV, JSON, LaTeX, Matplotlib, Plotly visualization and export.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="architecture" class="section section-dark">
+            <h2>Project Architecture</h2>
+            <div class="architecture-diagram">
+                <div class="arch-layer">
+                    <div class="layer-label">High-Level API</div>
+                    <div class="arch-boxes">
+                        <div class="arch-box api">tessera.api</div>
+                        <div class="arch-box api">tessera.cli</div>
+                        <div class="arch-box api">tessera.config</div>
+                    </div>
+                </div>
+                <div class="arch-arrow">&#8595;</div>
+                <div class="arch-layer">
+                    <div class="layer-label">Algorithms</div>
+                    <div class="arch-boxes">
+                        <div class="arch-box algo">kyber/</div>
+                        <div class="arch-box algo">dilithium/</div>
+                    </div>
+                </div>
+                <div class="arch-arrow">&#8595;</div>
+                <div class="arch-layer">
+                    <div class="layer-label">Core Math</div>
+                    <div class="arch-boxes">
+                        <div class="arch-box core">math.py</div>
+                        <div class="arch-box core">math_fast.py (Numba)</div>
+                        <div class="arch-box core">sampling.py</div>
+                    </div>
+                </div>
+                <div class="arch-arrow-split">
+                    <span>&#8601;</span>
+                    <span>&#8600;</span>
+                </div>
+                <div class="arch-layer arch-layer-split">
+                    <div class="arch-sublayer">
+                        <div class="layer-label">Security Analysis</div>
+                        <div class="arch-boxes vertical">
+                            <div class="arch-box leak">leakage/</div>
+                            <div class="arch-box attack">attacks/</div>
+                        </div>
+                    </div>
+                    <div class="arch-sublayer">
+                        <div class="layer-label">Protection</div>
+                        <div class="arch-boxes vertical">
+                            <div class="arch-box counter">countermeasures/</div>
+                            <div class="arch-box analysis">analysis/</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="kyber" class="section">
+            <h2>Kyber KEM Data Flow</h2>
+            <p class="section-desc">Key Encapsulation Mechanism based on Module Learning With Errors (MLWE)</p>
+            
+            <div class="flow-container">
+                <div class="flow-title">Key Generation</div>
+                <div class="flow-diagram" id="kyber-keygen">
+                    <div class="flow-node seed">Seed (d)</div>
+                    <div class="flow-arrow">&#8594;</div>
+                    <div class="flow-node process">SHAKE-128 Expand</div>
+                    <div class="flow-arrow">&#8594;</div>
+                    <div class="flow-node matrix">Matrix A (k×k)</div>
+                    <div class="flow-arrow">&#8594;</div>
+                    <div class="flow-node process">NTT Domain</div>
+                    <div class="flow-branch">
+                        <div class="branch-line"></div>
+                    </div>
+                    <div class="flow-row">
+                        <div class="flow-node secret">Secret s</div>
+                        <div class="flow-node secret">Error e</div>
+                    </div>
+                    <div class="flow-arrow">&#8595;</div>
+                    <div class="flow-node process">t = A·s + e</div>
+                    <div class="flow-arrow">&#8595;</div>
+                    <div class="flow-row">
+                        <div class="flow-node output pk">Public Key (t, ρ)</div>
+                        <div class="flow-node output sk">Secret Key (s)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flow-container">
+                <div class="flow-title">Encapsulation</div>
+                <div class="flow-diagram horizontal" id="kyber-encaps">
+                    <div class="flow-node input">Public Key</div>
+                    <div class="flow-arrow">&#8594;</div>
+                    <div class="flow-node process">Sample r, e₁, e₂</div>
+                    <div class="flow-arrow">&#8594;</div>
+                    <div class="flow-node process">u = Aᵀ·r + e₁</div>
+                    <div class="flow-arrow">&#8594;</div>
+                    <div class="flow-node process">v = tᵀ·r + e₂ + m</div>
+                    <div class="flow-arrow">&#8594;</div>
+                    <div class="flow-node output">Ciphertext (u, v)</div>
+                </div>
+            </div>
+
+            <div class="flow-container">
+                <div class="flow-title">Decapsulation</div>
+                <div class="flow-diagram horizontal" id="kyber-decaps">
+                    <div class="flow-node input">Ciphertext</div>
+                    <div class="flow-arrow">&#8594;</div>
+                    <div class="flow-node process">m' = v - sᵀ·u</div>
+                    <div class="flow-arrow">&#8594;</div>
+                    <div class="flow-node process">Decode & Verify</div>
+                    <div class="flow-arrow">&#8594;</div>
+                    <div class="flow-node process">SHAKE-256</div>
+                    <div class="flow-arrow">&#8594;</div>
+                    <div class="flow-node output">Shared Secret K</div>
+                </div>
+            </div>
+
+            <div class="params-table">
+                <h3>Kyber Parameters</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Variant</th>
+                            <th>n</th>
+                            <th>k</th>
+                            <th>q</th>
+                            <th>η₁</th>
+                            <th>η₂</th>
+                            <th>Security</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Kyber-512</td>
+                            <td>256</td>
+                            <td>2</td>
+                            <td>3329</td>
+                            <td>3</td>
+                            <td>2</td>
+                            <td>AES-128</td>
+                        </tr>
+                        <tr>
+                            <td>Kyber-768</td>
+                            <td>256</td>
+                            <td>3</td>
+                            <td>3329</td>
+                            <td>2</td>
+                            <td>2</td>
+                            <td>AES-192</td>
+                        </tr>
+                        <tr>
+                            <td>Kyber-1024</td>
+                            <td>256</td>
+                            <td>4</td>
+                            <td>3329</td>
+                            <td>2</td>
+                            <td>2</td>
+                            <td>AES-256</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="dilithium" class="section section-dark">
+            <h2>Dilithium Signature Data Flow</h2>
+            <p class="section-desc">Digital Signature Algorithm based on Module Learning With Errors (MLWE) and Fiat-Shamir</p>
+
+            <div class="flow-container">
+                <div class="flow-title">Key Generation</div>
+                <div class="flow-diagram" id="dil-keygen">
+                    <div class="flow-node seed">Seed (ξ)</div>
+                    <div class="flow-arrow">&#8594;</div>
+                    <div class="flow-node process">SHAKE-256 Expand</div>
+                    <div class="flow-arrow">&#8594;</div>
+                    <div class="flow-node matrix">Matrix A (k×l)</div>
+                    <div class="flow-branch">
+                        <div class="branch-line"></div>
+                    </div>
+                    <div class="flow-row">
+                        <div class="flow-node secret">s₁ (l vectors)</div>
+                        <div class="flow-node secret">s₂ (k vectors)</div>
+                    </div>
+                    <div class="flow-arrow">&#8595;</div>
+                    <div class="flow-node process">t = A·s₁ + s₂</div>
+                    <div class="flow-arrow">&#8595;</div>
+                    <div class="flow-row">
+                        <div class="flow-node output pk">Public Key (ρ, t₁)</div>
+                        <div class="flow-node output sk">Secret Key (ρ, K, tr, s₁, s₂, t₀)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flow-container">
+                <div class="flow-title">Sign (with Rejection Sampling)</div>
+                <div class="flow-diagram" id="dil-sign">
+                    <div class="flow-row">
+                        <div class="flow-node input">Message M</div>
+                        <div class="flow-node input">Secret Key</div>
+                    </div>
+                    <div class="flow-arrow">&#8595;</div>
+                    <div class="flow-node process">μ = H(tr || M)</div>
+                    <div class="flow-arrow">&#8595;</div>
+                    <div class="flow-node loop">
+                        <span class="loop-label">Rejection Loop</span>
+                        <div class="loop-content">
+                            <div class="flow-node process">Sample y (mask)</div>
+                            <div class="flow-arrow small">&#8595;</div>
+                            <div class="flow-node process">w = A·y</div>
+                            <div class="flow-arrow small">&#8595;</div>
+                            <div class="flow-node process">c = H(μ || w₁)</div>
+                            <div class="flow-arrow small">&#8595;</div>
+                            <div class="flow-node process">z = y + c·s₁</div>
+                            <div class="flow-arrow small">&#8595;</div>
+                            <div class="flow-node check">Check bounds on z, hints</div>
+                        </div>
+                    </div>
+                    <div class="flow-arrow">&#8595;</div>
+                    <div class="flow-node output">Signature (z, h, c̃)</div>
+                </div>
+            </div>
+
+            <div class="flow-container">
+                <div class="flow-title">Verify</div>
+                <div class="flow-diagram horizontal" id="dil-verify">
+                    <div class="flow-node input">Signature + PK</div>
+                    <div class="flow-arrow">&#8594;</div>
+                    <div class="flow-node process">w'₁ = UseHint(A·z - c·t)</div>
+                    <div class="flow-arrow">&#8594;</div>
+                    <div class="flow-node process">c' = H(μ || w'₁)</div>
+                    <div class="flow-arrow">&#8594;</div>
+                    <div class="flow-node check">c' == c̃ ?</div>
+                    <div class="flow-arrow">&#8594;</div>
+                    <div class="flow-node output">Valid / Invalid</div>
+                </div>
+            </div>
+
+            <div class="params-table">
+                <h3>Dilithium Parameters</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Variant</th>
+                            <th>n</th>
+                            <th>k</th>
+                            <th>l</th>
+                            <th>q</th>
+                            <th>γ₁</th>
+                            <th>Security</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Dilithium2</td>
+                            <td>256</td>
+                            <td>4</td>
+                            <td>4</td>
+                            <td>8380417</td>
+                            <td>2¹⁷</td>
+                            <td>~128-bit</td>
+                        </tr>
+                        <tr>
+                            <td>Dilithium3</td>
+                            <td>256</td>
+                            <td>6</td>
+                            <td>5</td>
+                            <td>8380417</td>
+                            <td>2¹⁹</td>
+                            <td>~192-bit</td>
+                        </tr>
+                        <tr>
+                            <td>Dilithium5</td>
+                            <td>256</td>
+                            <td>8</td>
+                            <td>7</td>
+                            <td>8380417</td>
+                            <td>2¹⁹</td>
+                            <td>~256-bit</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="ntt" class="section">
+            <h2>Number Theoretic Transform (NTT)</h2>
+            <p class="section-desc">Fast polynomial multiplication in O(n log n) using Cooley-Tukey butterfly</p>
+
+            <div class="ntt-visualization">
+                <div class="ntt-info">
+                    <h3>Butterfly Operation</h3>
+                    <div class="butterfly-diagram">
+                        <svg viewBox="0 0 300 150" class="butterfly-svg">
+                            <line x1="50" y1="40" x2="150" y2="40" stroke="#4a9eff" stroke-width="2"/>
+                            <line x1="50" y1="110" x2="150" y2="110" stroke="#4a9eff" stroke-width="2"/>
+                            <line x1="150" y1="40" x2="250" y2="40" stroke="#4a9eff" stroke-width="2"/>
+                            <line x1="150" y1="110" x2="250" y2="110" stroke="#4a9eff" stroke-width="2"/>
+                            <line x1="150" y1="40" x2="150" y2="110" stroke="#ff6b6b" stroke-width="2"/>
+                            <line x1="150" y1="40" x2="250" y2="110" stroke="#51cf66" stroke-width="2" stroke-dasharray="5,5"/>
+                            <line x1="150" y1="110" x2="250" y2="40" stroke="#ffd43b" stroke-width="2" stroke-dasharray="5,5"/>
+                            <circle cx="50" cy="40" r="8" fill="#4a9eff"/>
+                            <circle cx="50" cy="110" r="8" fill="#4a9eff"/>
+                            <circle cx="250" cy="40" r="8" fill="#51cf66"/>
+                            <circle cx="250" cy="110" r="8" fill="#51cf66"/>
+                            <circle cx="150" cy="75" r="12" fill="#ff6b6b"/>
+                            <text x="30" y="45" fill="#e0e0e0" font-size="14">a</text>
+                            <text x="30" y="115" fill="#e0e0e0" font-size="14">b</text>
+                            <text x="260" y="45" fill="#e0e0e0" font-size="14">a + ωb</text>
+                            <text x="260" y="115" fill="#e0e0e0" font-size="14">a - ωb</text>
+                            <text x="143" y="80" fill="#fff" font-size="12">ω</text>
+                        </svg>
+                    </div>
+                    <div class="formula">
+                        <code>a' = a + ω·b (mod q)</code><br>
+                        <code>b' = a - ω·b (mod q)</code>
+                    </div>
+                </div>
+
+                <div class="ntt-stages">
+                    <h3>8-Point NTT Structure</h3>
+                    <div class="ntt-graph" id="ntt-graph">
+                        <svg viewBox="0 0 500 320" class="ntt-svg">
+                            <defs>
+                                <marker id="arrowhead" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                                    <polygon points="0 0, 6 3, 0 6" fill="#4a9eff"/>
+                                </marker>
+                            </defs>
+                            
+                            <text x="60" y="20" fill="#888" font-size="12">Input</text>
+                            <text x="170" y="20" fill="#888" font-size="12">Stage 1</text>
+                            <text x="280" y="20" fill="#888" font-size="12">Stage 2</text>
+                            <text x="390" y="20" fill="#888" font-size="12">Stage 3</text>
+                            
+                            <g class="ntt-nodes">
+                                <circle cx="60" cy="50" r="12" fill="#4a9eff"/><text x="56" y="54" fill="#fff" font-size="10">0</text>
+                                <circle cx="60" cy="90" r="12" fill="#4a9eff"/><text x="56" y="94" fill="#fff" font-size="10">1</text>
+                                <circle cx="60" cy="130" r="12" fill="#4a9eff"/><text x="56" y="134" fill="#fff" font-size="10">2</text>
+                                <circle cx="60" cy="170" r="12" fill="#4a9eff"/><text x="56" y="174" fill="#fff" font-size="10">3</text>
+                                <circle cx="60" cy="210" r="12" fill="#4a9eff"/><text x="56" y="214" fill="#fff" font-size="10">4</text>
+                                <circle cx="60" cy="250" r="12" fill="#4a9eff"/><text x="56" y="254" fill="#fff" font-size="10">5</text>
+                                <circle cx="60" cy="290" r="12" fill="#4a9eff"/><text x="56" y="294" fill="#fff" font-size="10">6</text>
+                                <circle cx="60" cy="330" r="12" fill="#4a9eff" transform="translate(0,-30)"/><text x="56" y="304" fill="#fff" font-size="10">7</text>
+                            </g>
+                            
+                            <g class="stage1-lines" stroke="#51cf66" stroke-width="1.5">
+                                <line x1="72" y1="50" x2="168" y2="50"/>
+                                <line x1="72" y1="210" x2="168" y2="50"/>
+                                <line x1="72" y1="50" x2="168" y2="210"/>
+                                <line x1="72" y1="210" x2="168" y2="210"/>
+                                
+                                <line x1="72" y1="90" x2="168" y2="90"/>
+                                <line x1="72" y1="250" x2="168" y2="90"/>
+                                <line x1="72" y1="90" x2="168" y2="250"/>
+                                <line x1="72" y1="250" x2="168" y2="250"/>
+                                
+                                <line x1="72" y1="130" x2="168" y2="130"/>
+                                <line x1="72" y1="290" x2="168" y2="130"/>
+                                <line x1="72" y1="130" x2="168" y2="290"/>
+                                <line x1="72" y1="290" x2="168" y2="290"/>
+                                
+                                <line x1="72" y1="170" x2="168" y2="170"/>
+                                <line x1="72" y1="300" x2="168" y2="170"/>
+                                <line x1="72" y1="170" x2="168" y2="300"/>
+                            </g>
+                            
+                            <g class="stage1-nodes">
+                                <circle cx="180" cy="50" r="10" fill="#51cf66"/>
+                                <circle cx="180" cy="90" r="10" fill="#51cf66"/>
+                                <circle cx="180" cy="130" r="10" fill="#51cf66"/>
+                                <circle cx="180" cy="170" r="10" fill="#51cf66"/>
+                                <circle cx="180" cy="210" r="10" fill="#51cf66"/>
+                                <circle cx="180" cy="250" r="10" fill="#51cf66"/>
+                                <circle cx="180" cy="290" r="10" fill="#51cf66"/>
+                            </g>
+                            
+                            <g class="stage2-lines" stroke="#ffd43b" stroke-width="1.5">
+                                <line x1="190" y1="50" x2="278" y2="50"/>
+                                <line x1="190" y1="130" x2="278" y2="50"/>
+                                <line x1="190" y1="50" x2="278" y2="130"/>
+                                <line x1="190" y1="130" x2="278" y2="130"/>
+                                
+                                <line x1="190" y1="90" x2="278" y2="90"/>
+                                <line x1="190" y1="170" x2="278" y2="90"/>
+                                <line x1="190" y1="90" x2="278" y2="170"/>
+                                <line x1="190" y1="170" x2="278" y2="170"/>
+                                
+                                <line x1="190" y1="210" x2="278" y2="210"/>
+                                <line x1="190" y1="290" x2="278" y2="210"/>
+                                <line x1="190" y1="210" x2="278" y2="290"/>
+                                <line x1="190" y1="290" x2="278" y2="290"/>
+                                
+                                <line x1="190" y1="250" x2="278" y2="250"/>
+                            </g>
+                            
+                            <g class="stage2-nodes">
+                                <circle cx="290" cy="50" r="10" fill="#ffd43b"/>
+                                <circle cx="290" cy="90" r="10" fill="#ffd43b"/>
+                                <circle cx="290" cy="130" r="10" fill="#ffd43b"/>
+                                <circle cx="290" cy="170" r="10" fill="#ffd43b"/>
+                                <circle cx="290" cy="210" r="10" fill="#ffd43b"/>
+                                <circle cx="290" cy="250" r="10" fill="#ffd43b"/>
+                                <circle cx="290" cy="290" r="10" fill="#ffd43b"/>
+                            </g>
+                            
+                            <g class="stage3-lines" stroke="#ff6b6b" stroke-width="1.5">
+                                <line x1="300" y1="50" x2="398" y2="50"/>
+                                <line x1="300" y1="90" x2="398" y2="50"/>
+                                <line x1="300" y1="50" x2="398" y2="90"/>
+                                <line x1="300" y1="90" x2="398" y2="90"/>
+                                
+                                <line x1="300" y1="130" x2="398" y2="130"/>
+                                <line x1="300" y1="170" x2="398" y2="130"/>
+                                <line x1="300" y1="130" x2="398" y2="170"/>
+                                <line x1="300" y1="170" x2="398" y2="170"/>
+                                
+                                <line x1="300" y1="210" x2="398" y2="210"/>
+                                <line x1="300" y1="250" x2="398" y2="210"/>
+                                <line x1="300" y1="210" x2="398" y2="250"/>
+                                <line x1="300" y1="250" x2="398" y2="250"/>
+                                
+                                <line x1="300" y1="290" x2="398" y2="290"/>
+                            </g>
+                            
+                            <g class="stage3-nodes">
+                                <circle cx="410" cy="50" r="12" fill="#ff6b6b"/><text x="402" y="54" fill="#fff" font-size="9">X̂[0]</text>
+                                <circle cx="410" cy="90" r="12" fill="#ff6b6b"/><text x="402" y="94" fill="#fff" font-size="9">X̂[1]</text>
+                                <circle cx="410" cy="130" r="12" fill="#ff6b6b"/><text x="402" y="134" fill="#fff" font-size="9">X̂[2]</text>
+                                <circle cx="410" cy="170" r="12" fill="#ff6b6b"/><text x="402" y="174" fill="#fff" font-size="9">X̂[3]</text>
+                                <circle cx="410" cy="210" r="12" fill="#ff6b6b"/><text x="402" y="214" fill="#fff" font-size="9">X̂[4]</text>
+                                <circle cx="410" cy="250" r="12" fill="#ff6b6b"/><text x="402" y="254" fill="#fff" font-size="9">X̂[5]</text>
+                                <circle cx="410" cy="290" r="12" fill="#ff6b6b"/><text x="402" y="294" fill="#fff" font-size="9">X̂[6]</text>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ntt-perf">
+                <h3>Performance (Numba JIT)</h3>
+                <div class="perf-bars">
+                    <div class="perf-item">
+                        <span class="perf-label">Kyber NTT (n=256)</span>
+                        <div class="perf-bar-container">
+                            <div class="perf-bar" style="width: 60%"></div>
+                        </div>
+                        <span class="perf-value">~18 μs</span>
+                    </div>
+                    <div class="perf-item">
+                        <span class="perf-label">Dilithium NTT (n=256)</span>
+                        <div class="perf-bar-container">
+                            <div class="perf-bar" style="width: 90%"></div>
+                        </div>
+                        <span class="perf-value">~27 μs</span>
+                    </div>
+                    <div class="perf-item">
+                        <span class="perf-label">Python (no JIT)</span>
+                        <div class="perf-bar-container">
+                            <div class="perf-bar slow" style="width: 100%"></div>
+                        </div>
+                        <span class="perf-value">~2.5 ms</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="attacks" class="section section-dark">
+            <h2>Side-Channel Attack Flow</h2>
+            <p class="section-desc">Power analysis attacks exploit data-dependent power consumption</p>
+
+            <div class="attack-pipeline">
+                <div class="pipeline-stage">
+                    <div class="stage-icon">&#128268;</div>
+                    <h3>1. Trace Acquisition</h3>
+                    <p>Collect power traces during cryptographic operations</p>
+                    <div class="stage-detail">
+                        <code>traces = TraceGenerator(key, noise=0.5).generate(n=1000)</code>
+                    </div>
+                </div>
+                <div class="pipeline-arrow">&#8594;</div>
+                <div class="pipeline-stage">
+                    <div class="stage-icon">&#128200;</div>
+                    <h3>2. Preprocessing</h3>
+                    <p>Filter, align, and normalize traces</p>
+                    <div class="stage-detail">
+                        <code>preprocessor.normalize().filter().align()</code>
+                    </div>
+                </div>
+                <div class="pipeline-arrow">&#8594;</div>
+                <div class="pipeline-stage">
+                    <div class="stage-icon">&#128161;</div>
+                    <h3>3. Leakage Model</h3>
+                    <p>Model power as function of processed data</p>
+                    <div class="stage-detail">
+                        <code>HammingWeight(SBox[p ⊕ k])</code>
+                    </div>
+                </div>
+                <div class="pipeline-arrow">&#8594;</div>
+                <div class="pipeline-stage">
+                    <div class="stage-icon">&#128270;</div>
+                    <h3>4. Statistical Attack</h3>
+                    <p>Correlate hypothetical leakage with traces</p>
+                    <div class="stage-detail">
+                        <code>corr = pearsonr(traces, hypotheses)</code>
+                    </div>
+                </div>
+                <div class="pipeline-arrow">&#8594;</div>
+                <div class="pipeline-stage">
+                    <div class="stage-icon">&#128273;</div>
+                    <h3>5. Key Recovery</h3>
+                    <p>Select key hypothesis with maximum correlation</p>
+                    <div class="stage-detail">
+                        <code>key_byte = argmax(correlation)</code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="attack-types">
+                <h3>Implemented Attacks</h3>
+                <div class="attack-grid">
+                    <div class="attack-card">
+                        <h4>CPA</h4>
+                        <p>Correlation Power Analysis</p>
+                        <span class="attack-tag">First-order</span>
+                    </div>
+                    <div class="attack-card">
+                        <h4>DPA</h4>
+                        <p>Differential Power Analysis</p>
+                        <span class="attack-tag">First-order</span>
+                    </div>
+                    <div class="attack-card">
+                        <h4>TVLA</h4>
+                        <p>Test Vector Leakage Assessment</p>
+                        <span class="attack-tag">Detection</span>
+                    </div>
+                    <div class="attack-card">
+                        <h4>Template</h4>
+                        <p>Profiled Attack with POI</p>
+                        <span class="attack-tag">Profiled</span>
+                    </div>
+                    <div class="attack-card">
+                        <h4>Higher-Order</h4>
+                        <p>Attacks on Masked Implementations</p>
+                        <span class="attack-tag">Advanced</span>
+                    </div>
+                    <div class="attack-card">
+                        <h4>Lattice-Specific</h4>
+                        <p>NTT Coefficient & Butterfly</p>
+                        <span class="attack-tag">PQC</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="attack-demo" id="attack-demo">
+                <h3>CPA Attack Simulation</h3>
+                <div class="demo-controls">
+                    <button class="btn" onclick="runAttackDemo()">Run Simulation</button>
+                    <span class="demo-status" id="demo-status">Ready</span>
+                </div>
+                <div class="demo-viz">
+                    <canvas id="attack-canvas" width="600" height="200"></canvas>
+                </div>
+                <div class="demo-results" id="demo-results">
+                    <div class="result-item">
+                        <span class="result-label">Correct Key Byte:</span>
+                        <span class="result-value" id="true-key">0x??</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Recovered Key Byte:</span>
+                        <span class="result-value" id="recovered-key">0x??</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Correlation:</span>
+                        <span class="result-value" id="correlation">-</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="countermeasures" class="section">
+            <h2>Countermeasures</h2>
+            <p class="section-desc">Protection techniques against side-channel attacks</p>
+
+            <div class="countermeasure-grid">
+                <div class="cm-card">
+                    <div class="cm-header">
+                        <h3>Boolean Masking</h3>
+                        <span class="cm-level">Order d</span>
+                    </div>
+                    <div class="cm-diagram">
+                        <div class="cm-flow">
+                            <div class="cm-node input">x</div>
+                            <div class="cm-arrow">&#8594;</div>
+                            <div class="cm-operation">Split</div>
+                            <div class="cm-arrow">&#8594;</div>
+                            <div class="cm-shares">
+                                <div class="share">x₀</div>
+                                <div class="share">x₁</div>
+                                <div class="share">...</div>
+                                <div class="share">xₐ</div>
+                            </div>
+                        </div>
+                        <div class="cm-equation">
+                            x = x₀ ⊕ x₁ ⊕ ... ⊕ xₐ
+                        </div>
+                    </div>
+                    <p>Splits sensitive data into d+1 shares. Requires d+1 order attack to break.</p>
+                </div>
+
+                <div class="cm-card">
+                    <div class="cm-header">
+                        <h3>Arithmetic Masking</h3>
+                        <span class="cm-level">Order d</span>
+                    </div>
+                    <div class="cm-diagram">
+                        <div class="cm-flow">
+                            <div class="cm-node input">x</div>
+                            <div class="cm-arrow">&#8594;</div>
+                            <div class="cm-operation">Split</div>
+                            <div class="cm-arrow">&#8594;</div>
+                            <div class="cm-shares">
+                                <div class="share">x₀</div>
+                                <div class="share">x₁</div>
+                                <div class="share">...</div>
+                                <div class="share">xₐ</div>
+                            </div>
+                        </div>
+                        <div class="cm-equation">
+                            x = (x₀ + x₁ + ... + xₐ) mod q
+                        </div>
+                    </div>
+                    <p>Uses modular addition for lattice-based operations in Kyber/Dilithium.</p>
+                </div>
+
+                <div class="cm-card">
+                    <div class="cm-header">
+                        <h3>Shuffling</h3>
+                        <span class="cm-level">Randomization</span>
+                    </div>
+                    <div class="cm-diagram">
+                        <div class="cm-shuffle">
+                            <div class="shuffle-before">
+                                <span>Op 0</span>
+                                <span>Op 1</span>
+                                <span>Op 2</span>
+                                <span>Op 3</span>
+                            </div>
+                            <div class="shuffle-arrow">&#8595; π</div>
+                            <div class="shuffle-after">
+                                <span>Op 2</span>
+                                <span>Op 0</span>
+                                <span>Op 3</span>
+                                <span>Op 1</span>
+                            </div>
+                        </div>
+                    </div>
+                    <p>Randomizes operation order. Each execution uses different permutation.</p>
+                </div>
+
+                <div class="cm-card">
+                    <div class="cm-header">
+                        <h3>Hiding</h3>
+                        <span class="cm-level">Noise</span>
+                    </div>
+                    <div class="cm-diagram">
+                        <div class="cm-hiding">
+                            <div class="signal-line">
+                                <svg viewBox="0 0 200 60" class="signal-svg">
+                                    <path d="M0,30 Q25,10 50,30 T100,30 T150,30 T200,30" stroke="#4a9eff" stroke-width="2" fill="none"/>
+                                    <path d="M0,30 Q25,5 50,35 T100,25 T150,40 T200,28" stroke="#ff6b6b" stroke-width="1" fill="none" stroke-dasharray="3,3"/>
+                                </svg>
+                            </div>
+                            <div class="hiding-labels">
+                                <span class="label-clean">Clean Signal</span>
+                                <span class="label-noisy">+ Random Noise</span>
+                            </div>
+                        </div>
+                    </div>
+                    <p>Adds random noise, dummy operations, and timing jitter to obscure leakage.</p>
+                </div>
+            </div>
+
+            <div class="cm-comparison">
+                <h3>Protection Effectiveness</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Countermeasure</th>
+                            <th>Against CPA</th>
+                            <th>Against Template</th>
+                            <th>Performance Cost</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1st-order Masking</td>
+                            <td class="good">Strong</td>
+                            <td class="medium">Medium</td>
+                            <td>~2x</td>
+                        </tr>
+                        <tr>
+                            <td>2nd-order Masking</td>
+                            <td class="good">Very Strong</td>
+                            <td class="good">Strong</td>
+                            <td>~4x</td>
+                        </tr>
+                        <tr>
+                            <td>Shuffling</td>
+                            <td class="medium">Medium</td>
+                            <td class="good">Strong</td>
+                            <td>~1.5x</td>
+                        </tr>
+                        <tr>
+                            <td>Hiding (Noise)</td>
+                            <td class="medium">Medium</td>
+                            <td class="weak">Weak</td>
+                            <td>~1.2x</td>
+                        </tr>
+                        <tr>
+                            <td>Combined</td>
+                            <td class="good">Very Strong</td>
+                            <td class="good">Very Strong</td>
+                            <td>~6x</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="quickstart" class="section section-dark">
+            <h2>Quick Start</h2>
+            <div class="code-examples">
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>Installation</span>
+                    </div>
+                    <pre><code>pip install tessera-pqc</code></pre>
+                </div>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>Kyber Key Exchange</span>
+                    </div>
+                    <pre><code>import tessera as t
+
+pk, sk = t.kyber_keygen("768")
+ct, shared1 = t.kyber_encaps(pk, "768")
+shared2 = t.kyber_decaps(sk, ct, "768")
+assert shared1 == shared2</code></pre>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>Side-Channel Attack</span>
+                    </div>
+                    <pre><code>import tessera as t
+
+data = t.generate_traces(n_traces=1000, trace_length=32)
+result = t.run_cpa(data["traces"], data["plaintexts"])
+print(f"Recovered: {result['recovered_key']}")</code></pre>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>CLI Usage</span>
+                    </div>
+                    <pre><code>tessera kyber --variant 768
+tessera dilithium --variant 3
+tessera attack cpa --traces 1000
+tessera tvla --traces 5000</code></pre>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>Tessera-PQC</h4>
+                <p>Research-grade Post-Quantum Cryptography Framework</p>
+            </div>
+            <div class="footer-section">
+                <h4>Links</h4>
+                <a href="https://github.com/abhinavgulisetty/tessera-pqc">GitHub</a>
+                <a href="https://pypi.org/project/tessera-pqc/">PyPI</a>
+            </div>
+            <div class="footer-section">
+                <h4>Resources</h4>
+                <a href="https://pq-crystals.org/kyber/">Kyber Spec</a>
+                <a href="https://pq-crystals.org/dilithium/">Dilithium Spec</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>MIT License | Built for cryptographic research</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
